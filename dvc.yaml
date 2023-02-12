@@ -1,0 +1,45 @@
+stages:
+  load_data: 
+    cmd: python3 src/load_data.py --config=params.yaml
+    deps:
+    - src/get_data.py
+    - src/load_data.py
+    - source_code/insurance_course5i.csv
+
+    outs:
+    - data/raw/insurance_course5i.csv
+  
+  split_data:
+    cmd: python3 src/split_data.py --config=paramas.yaml
+    deps:
+    - src/split_data.py
+    - data/raw/insurance_course5i.csv
+
+    outs:
+    - data/processed/train_insurance_course5i.csv
+    - data/processed/test_insurance_course5i.csv
+  
+train_and_evaluate:
+  cmd: python3 src/train_and_evaluate.py --config=params.yaml
+  deps:
+  - data/processed/train_insurance_course5i.csv
+  - data/processed/test_insurance_course5i.csv
+  - src/train_and_evaluate.py
+
+  params:
+  - estimators.ElasticNet.alpha
+  - estimators.ElasticNet.l1_ratio
+
+  # metrics:
+  # - reports/scores.json
+  #   cache: false
+  # - reports/params.json
+  #   cache: false
+
+  # outs:
+  # - models/model.jojblib
+
+log_production_model:
+  cmd: python3 src/log_production_model.py --config=params.yaml
+  deps:
+    - src/log_production_model.py
